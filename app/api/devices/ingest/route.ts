@@ -55,6 +55,28 @@ type AcceleratorPayload = {
   processes?: AcceleratorProcessPayload[]
 }
 
+type PreparedProcess = {
+  pid?: number
+  name: string
+  username?: string
+  memoryBytes?: bigint
+}
+
+type PreparedAccelerator = {
+  slot: number
+  kind: "GPU" | "NPU"
+  name: string
+  vendor?: string
+  busId?: string
+  memoryTotalBytes: bigint
+  memoryUsedBytes: bigint
+  utilization?: number
+  memoryUtilization?: number
+  temperatureC?: number
+  powerWatts?: number
+  processes: PreparedProcess[]
+}
+
 type DevicePayload = {
   slug: string
   name: string

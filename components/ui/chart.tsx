@@ -108,6 +108,7 @@ const ChartTooltipContent = React.forwardRef<
     formatter?: (value: any, name: any, item: any, index: number, payload: any) => React.ReactNode
     color?: string
     labelClassName?: string
+    unit?: string
   }
 >(
   (
@@ -125,6 +126,7 @@ const ChartTooltipContent = React.forwardRef<
       color,
       nameKey,
       labelKey,
+      unit,
     },
     ref,
   ) => {
@@ -240,9 +242,13 @@ const ChartTooltipContent = React.forwardRef<
                             payload.length === 1 && "-ml-9",
                           )}
                         >
-                          {typeof item.value === "number"
-                            ? item.value.toFixed(2).toLocaleString()
-                            : item.value}{" "}
+                          {(() => {
+                            const formatted =
+                              typeof item.value === "number"
+                                ? item.value.toFixed(2).toLocaleString()
+                                : item.value
+                            return unit ? `${formatted} ${unit}` : formatted
+                          })()}
                         </span>
                       )}
                     </div>

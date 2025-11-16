@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
+import getEnv from "@/lib/env-entry"
 import { PerformHealthCheck } from "@/lib/serverFetchV2"
 
 export const dynamic = "force-dynamic"
