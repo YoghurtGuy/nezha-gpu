@@ -4,6 +4,9 @@
 
 // Import and re-export API types
 import type {
+  AcceleratorKind as _AcceleratorKind,
+  AcceleratorProcessInfo as _AcceleratorProcessInfo,
+  AcceleratorStatus as _AcceleratorStatus,
   KomariAPIResponse as _KomariAPIResponse,
   KomariRecentData as _KomariRecentData,
   KomariRecentResponse as _KomariRecentResponse,
@@ -23,6 +26,9 @@ import type {
 
 // Re-export API types
 export type ServerApi = _ServerApi
+export type AcceleratorStatus = _AcceleratorStatus
+export type AcceleratorProcessInfo = _AcceleratorProcessInfo
+export type AcceleratorKind = _AcceleratorKind
 export type NezhaAPI = _NezhaAPI
 export type NezhaAPISafe = _NezhaAPISafe
 export type NezhaAPIHost = _NezhaAPIHost

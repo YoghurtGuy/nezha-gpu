@@ -7,6 +7,26 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatNezhaInfo(serverInfo: NezhaAPISafe) {
+  const memTotal = serverInfo.host.MemTotal || 0
+  const swapTotal = serverInfo.host.SwapTotal || 0
+  const diskTotal = serverInfo.host.DiskTotal || 0
+  const accelerators = serverInfo.status.Accelerators ?? []
+  const acceleratorTotals = accelerators.reduce(
+    (acc, accelerator) => {
+      acc.used += accelerator.memoryUsedBytes || 0
+      acc.total += accelerator.memoryTotalBytes || 0
+      return acc
+    },
+    { used: 0, total: 0 },
+  )
+  const gpuMemoryUsed = serverInfo.status.GpuMemoryUsedBytes ?? acceleratorTotals.used
+  const gpuMemoryTotal = serverInfo.status.GpuMemoryTotalBytes ?? acceleratorTotals.total
+
+  const safePercent = (used: number, total: number) => {
+    if (!total || Number.isNaN(total) || total <= 0) return 0
+    return (used / total) * 100
+  }
+
   return {
     ...serverInfo,
     cpu: serverInfo.status.CPU,
@@ -27,15 +47,15 @@ export function formatNezhaInfo(serverInfo: NezhaAPISafe) {
     tcp: serverInfo.status.TcpConnCount || 0,
     udp: serverInfo.status.UdpConnCount || 0,
     arch: serverInfo.host.Arch || "",
-    mem_total: serverInfo.host.MemTotal || 0,
-    swap_total: serverInfo.host.SwapTotal || 0,
-    disk_total: serverInfo.host.DiskTotal || 0,
+    mem_total: memTotal,
+    swap_total: swapTotal,
+    disk_total: diskTotal,
     platform: serverInfo.host.Platform || "",
     platform_version: serverInfo.host.PlatformVersion || "",
-    mem: (serverInfo.status.MemUsed / serverInfo.host.MemTotal) * 100 || 0,
-    swap: (serverInfo.status.SwapUsed / serverInfo.host.SwapTotal) * 100 || 0,
-    disk: (serverInfo.status.DiskUsed / serverInfo.host.DiskTotal) * 100 || 0,
-    stg: (serverInfo.status.DiskUsed / serverInfo.host.DiskTotal) * 100 || 0,
+    mem: safePercent(serverInfo.status.MemUsed, memTotal),
+    swap: safePercent(serverInfo.status.SwapUsed, swapTotal),
+    disk: safePercent(serverInfo.status.DiskUsed, diskTotal),
+    stg: safePercent(serverInfo.status.DiskUsed, diskTotal),
     net_out_transfer: serverInfo.status.NetOutTransfer || 0,
     net_in_transfer: serverInfo.status.NetInTransfer || 0,
     country_code: serverInfo.host.CountryCode,
@@ -44,6 +64,10 @@ export function formatNezhaInfo(serverInfo: NezhaAPISafe) {
     load_1: serverInfo.status.Load1?.toFixed(2) || 0.0,
     load_5: serverInfo.status.Load5?.toFixed(2) || 0.0,
     load_15: serverInfo.status.Load15?.toFixed(2) || 0.0,
+    gpu_memory_used: gpuMemoryUsed,
+    gpu_memory_total: gpuMemoryTotal,
+    gpu_memory_percent: safePercent(gpuMemoryUsed, gpuMemoryTotal),
+    accelerators,
   }
 }
 

@@ -1,11 +1,12 @@
 {
   "ServerOverviewClient": {
-    "p_816-881_Totalservers": "服务器总数",
-    "p_1610-1676_Onlineservers": "在线服务器",
-    "p_2532-2599_Offlineservers": "离线服务器",
-    "p_3463-3530_Totalbandwidth": "总流量",
-    "speed": "速率",
-    "network": "网络",
+    "accelerator_total": "加速卡总数",
+    "accelerator_idle": "空闲加速卡",
+    "accelerator_vram": "加速卡显存",
+    "accelerator_utilization": "加速卡利用率",
+    "accelerators": "加速器",
+    "vram_usage": "显存使用",
+    "gpu_utilization": "GPU 利用率",
     "error_message": "请检查您的环境变量并检查服务器控制台",
     "no_data_message": "无数据"
   },
@@ -21,6 +22,10 @@
     "STG": "存储",
     "Upload": "上传",
     "Download": "下载",
+    "GpuMemory": "显存",
+    "GpuUtil": "GPU Util",
+    "GpuCapacity": "显存总量",
+    "GpuMemoryUsed": "已用显存",
     "Offline": "离线",
     "Uptime": "运行时间",
     "TotalUpload": "总上传",
@@ -30,6 +35,7 @@
   "TabSwitch": {
     "Detail": "详情",
     "Network": "网络",
+    "Accelerators": "加速器",
     "disabled_tooltip": "此功能在当前模式下不可用"
   },
   "SignIn": {
@@ -54,9 +60,14 @@
     "Region": "地区"
   },
   "NetworkChartClient": {
-    "avg_delay": "延迟",
-    "packet_loss": "丢包率",
-    "chart_fetch_error_message": "获取网络数据失败，请检查是否开启服务端监控"
+    "chart_fetch_error_message": "获取加速器数据失败",
+    "GpuMemoryHistory": "显存历史",
+    "GpuMemoryHistoryDescription": "基于设备上报的显存使用情况",
+    "GpuUtilHistory": "GPU 利用率历史",
+    "GpuUtilHistoryDescription": "数次上报的实时利用率",
+    "GpuMemory": "显存",
+    "GpuUtil": "GPU 利用率",
+    "Power": "功耗"
   },
   "NetworkChart": {
     "avg_delay": "延迟",
@@ -92,7 +103,16 @@
     "Download": "下载",
     "Load": "负载",
     "LastActive": "最后上报时间",
-    "BootTime": "启动时间"
+    "BootTime": "启动时间",
+    "AcceleratorsTitle": "加速器详情",
+    "GpuMemory": "显存",
+    "GpuUtil": "GPU 利用率",
+    "GpuMemoryUsed": "显存占用",
+    "GpuCapacity": "显存总量",
+    "Power": "功耗",
+    "Temperature": "温度",
+    "Processes": "进程",
+    "NoHistory": "暂无加速器历史数据"
   },
   "ServerDetailChartClient": {
     "chart_fetch_error_message": "获取服务器详情失败，请检查您的环境变量并检查服务器控制台",
@@ -101,7 +121,9 @@
     "Mem": "内存",
     "Swap": "虚拟内存",
     "Upload": "上传",
-    "Download": "下载"
+    "Download": "下载",
+    "GpuMemory": "显存",
+    "GpuUtil": "GPU 利用率"
   },
   "ThemeSwitcher": {
     "Light": "亮色",

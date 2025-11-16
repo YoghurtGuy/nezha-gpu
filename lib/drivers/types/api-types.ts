@@ -12,6 +12,9 @@ export type ServerApi = {
   total_in_bandwidth: number
   total_out_speed: number
   total_in_speed: number
+  total_gpu_memory: number
+  total_gpu_memory_used: number
+  average_gpu_utilization: number
   result: NezhaAPISafe[]
 }
 
@@ -65,6 +68,34 @@ export interface NezhaAPIStatus {
   ProcessCount: number
   Temperatures: number
   GPU: number
+  Accelerators?: AcceleratorStatus[]
+  GpuMemoryTotalBytes?: number
+  GpuMemoryUsedBytes?: number
+}
+
+export type AcceleratorKind = "GPU" | "NPU"
+
+export interface AcceleratorProcessInfo {
+  pid?: number
+  name: string
+  user?: string
+  memoryBytes?: number
+}
+
+export interface AcceleratorStatus {
+  slot: number
+  kind: AcceleratorKind
+  name: string
+  vendor?: string
+  busId?: string
+  memoryTotalBytes: number
+  memoryUsedBytes: number
+  utilization?: number
+  memoryUtilization?: number
+  temperatureC?: number
+  powerWatts?: number
+  processes: AcceleratorProcessInfo[]
+  hardwareId?: number
 }
 
 export type ServerMonitorChart = {

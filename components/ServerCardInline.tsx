@@ -12,8 +12,20 @@ import { Separator } from "./ui/separator"
 
 export default function ServerCardInline({ serverInfo }: { serverInfo: NezhaAPISafe }) {
   const t = useTranslations("ServerCard")
-  const { id, name, country_code, online, cpu, up, down, mem, stg, host } =
-    formatNezhaInfo(serverInfo)
+  const {
+    id,
+    name,
+    country_code,
+    online,
+    cpu,
+    mem,
+    stg,
+    host,
+    gpu,
+    gpu_memory_percent,
+    gpu_memory_used,
+    gpu_memory_total,
+  } = formatNezhaInfo(serverInfo)
 
   const showFlag = getEnv("NEXT_PUBLIC_ShowFlag") === "true"
 
@@ -91,28 +103,28 @@ export default function ServerCardInline({ serverInfo }: { serverInfo: NezhaAPIS
               <div className="flex items-center font-semibold text-xs">{stg.toFixed(2)}%</div>
               <ServerUsageBar value={stg} />
             </div>
-            <div className={"flex w-16 flex-col"}>
-              <p className="text-muted-foreground text-xs">{t("Upload")}</p>
+            <div className={"flex w-14 flex-col"}>
+              <p className="text-muted-foreground text-xs">{t("GpuMemory")}</p>
               <div className="flex items-center font-semibold text-xs">
-                {up >= 1024 ? `${(up / 1024).toFixed(2)}G/s` : `${up.toFixed(2)}M/s`}
+                {gpu_memory_percent.toFixed(1)}%
+              </div>
+              <ServerUsageBar value={gpu_memory_percent} />
+            </div>
+            <div className={"flex w-14 flex-col"}>
+              <p className="text-muted-foreground text-xs">{t("GpuUtil")}</p>
+              <div className="flex items-center font-semibold text-xs">{gpu.toFixed(1)}%</div>
+              <ServerUsageBar value={gpu} />
+            </div>
+            <div className={"flex w-24 flex-col"}>
+              <p className="text-muted-foreground text-xs">{t("GpuMemoryUsed")}</p>
+              <div className="flex items-center font-semibold text-xs">
+                {formatBytes(gpu_memory_used)}
               </div>
             </div>
-            <div className={"flex w-16 flex-col"}>
-              <p className="text-muted-foreground text-xs">{t("Download")}</p>
+            <div className={"flex w-24 flex-col"}>
+              <p className="text-muted-foreground text-xs">{t("GpuCapacity")}</p>
               <div className="flex items-center font-semibold text-xs">
-                {down >= 1024 ? `${(down / 1024).toFixed(2)}G/s` : `${down.toFixed(2)}M/s`}
-              </div>
-            </div>
-            <div className={"flex w-20 flex-col"}>
-              <p className="text-muted-foreground text-xs">{t("TotalUpload")}</p>
-              <div className="flex items-center font-semibold text-xs">
-                {formatBytes(serverInfo.status.NetOutTransfer)}
-              </div>
-            </div>
-            <div className={"flex w-20 flex-col"}>
-              <p className="text-muted-foreground text-xs">{t("TotalDownload")}</p>
-              <div className="flex items-center font-semibold text-xs">
-                {formatBytes(serverInfo.status.NetInTransfer)}
+                {formatBytes(gpu_memory_total)}
               </div>
             </div>
           </section>

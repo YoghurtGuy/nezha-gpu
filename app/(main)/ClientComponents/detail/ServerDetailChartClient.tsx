@@ -1,7 +1,7 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Area, AreaChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import {
   MAX_HISTORY_LENGTH,
@@ -42,9 +42,8 @@ type memChartData = {
 }
 
 type networkChartData = {
-  timeStamp: string
-  upload: number
-  download: number
+  timeStamp: number
+  [key: string]: number | string
 }
 
 type connectChartData = {
@@ -83,8 +82,8 @@ export default function ServerDetailChartClient({
       ) : null}
       <MemChart data={data} history={history} />
       <DiskChart data={data} history={history} />
-      <NetworkChart data={data} history={history} />
-      <ConnectChart data={data} history={history} />
+      <GpuMemChart data={data} history={history} />
+      {/* <ConnectChart data={data} history={history} /> */}
       <ProcessChart data={data} history={history} />
     </section>
   )
@@ -707,7 +706,7 @@ function DiskChart({ data, history }: { data: NezhaAPISafe; history: ServerDataW
   )
 }
 
-function NetworkChart({
+function GpuMemChart({
   data,
   history,
 }: {
@@ -715,96 +714,92 @@ function NetworkChart({
   history: ServerDataWithTimestamp[]
 }) {
   const t = useTranslations("ServerDetailChartClient")
-  const [networkChartData, setNetworkChartData] = useState([] as networkChartData[])
-  const hasInitialized = useRef(false)
-  const [historyLoaded, setHistoryLoaded] = useState(false)
+  const currentSnapshot = formatNezhaInfo(data)
 
-  useEffect(() => {
-    if (!hasInitialized.current && history.length > 0) {
-      const historyData = history
-        .map((msg) => {
-          const server = msg.data?.result?.find((item) => item.id === data.id)
-          if (!server) return null
-          const { up, down } = formatNezhaInfo(server)
-          return {
-            timeStamp: msg.timestamp.toString(),
-            upload: up,
-            download: down,
-          }
-        })
-        .filter((item): item is networkChartData => item !== null)
-        .reverse()
+  const { chartData, labelMap } = useMemo(() => {
+    const labels = new Map<string, string>()
 
-      setNetworkChartData(historyData)
-      hasInitialized.current = true
-      setHistoryLoaded(true)
-    } else if (history.length === 0) {
-      setHistoryLoaded(true)
-    }
-  }, [])
-
-  const { up, down } = formatNezhaInfo(data)
-
-  useEffect(() => {
-    if (data && historyLoaded) {
-      const timestamp = Date.now().toString()
-      let newData = [] as networkChartData[]
-      if (networkChartData.length === 0) {
-        newData = [
-          { timeStamp: timestamp, upload: up, download: down },
-          { timeStamp: timestamp, upload: up, download: down },
-        ]
-      } else {
-        newData = [...networkChartData, { timeStamp: timestamp, upload: up, download: down }]
+    const buildPoint = (snapshot: NezhaAPISafe, timestamp: number) => {
+      const formatted = formatNezhaInfo(snapshot)
+      const entry: networkChartData = {
+        timeStamp: timestamp,
       }
-      if (newData.length > MAX_HISTORY_LENGTH) {
-        newData.shift()
-      }
-      setNetworkChartData(newData)
+      formatted.accelerators?.forEach((accelerator) => {
+        const key = getAcceleratorKey(accelerator)
+        const total = accelerator.memoryTotalBytes ?? 0
+        const used = accelerator.memoryUsedBytes ?? 0
+        const percent = total > 0 ? (used / total) * 100 : 0
+        entry[key] = Number(percent.toFixed(2))
+        labels.set(key, `${accelerator.name} #${accelerator.slot}`)
+      })
+      return entry
     }
-  }, [data, historyLoaded])
 
-  let maxDownload = Math.max(...networkChartData.map((item) => item.download))
-  maxDownload = Math.ceil(maxDownload)
-  if (maxDownload < 1) {
-    maxDownload = 1
-  }
+    const historyPoints = history
+      .map((msg) => {
+        const server = msg.data?.result?.find((item) => item.id === data.id)
+        if (!server) return null
+        return buildPoint(server, msg.timestamp)
+      })
+      .filter((item): item is networkChartData => item !== null)
+      .reverse()
 
-  const chartConfig = {
-    upload: {
-      label: "Upload",
-    },
-    download: {
-      label: "Download",
-    },
-  } satisfies ChartConfig
+    const currentPoint = buildPoint(data, Date.now())
+    const combined = [...historyPoints, currentPoint]
+
+    return {
+      chartData: combined.slice(-MAX_HISTORY_LENGTH),
+      labelMap: labels,
+    }
+  }, [data, history])
+
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {}
+    const uniqueKeys = new Set<string>()
+
+    chartData.forEach((point) => {
+      Object.keys(point).forEach((key) => {
+        if (key === "timeStamp") return
+        uniqueKeys.add(key)
+      })
+    })
+
+    Array.from(uniqueKeys).forEach((key, index) => {
+      config[key] = {
+        label: labelMap.get(key) ?? key,
+        color: `hsl(var(--chart-${(index % 5) + 1}))`,
+      }
+    })
+
+    return config
+  }, [chartData, labelMap])
 
   return (
     <Card>
       <CardContent className="px-6 py-3">
         <section className="flex flex-col gap-1">
-          <div className="flex items-center">
-            <section className="flex items-center gap-4">
-              <div className="flex w-20 flex-col">
-                <p className="text-muted-foreground text-xs">{t("Upload")}</p>
-                <div className="flex items-center gap-1">
-                  <span className="relative inline-flex size-1.5 rounded-full bg-[hsl(var(--chart-1))]" />
-                  <p className="font-medium text-xs">{up.toFixed(2)} M/s</p>
-                </div>
-              </div>
-              <div className="flex w-20 flex-col">
-                <p className="text-muted-foreground text-xs">{t("Download")}</p>
-                <div className="flex items-center gap-1">
-                  <span className="relative inline-flex size-1.5 rounded-full bg-[hsl(var(--chart-4))]" />
-                  <p className="font-medium text-xs">{down.toFixed(2)} M/s</p>
-                </div>
+          <div className="flex items-center justify-between">
+            <p className="font-medium text-md">{t("GpuMemory")}</p>
+            <section className="flex flex-col items-end gap-0.5">
+              <section className="flex items-center gap-2">
+                <p className="w-10 text-end font-medium text-xs">{currentSnapshot.gpu_memory_percent.toFixed(0)}%</p>
+                <AnimatedCircularProgressBar
+                  className="size-3 text-[0px]"
+                  max={100}
+                  min={0}
+                  value={currentSnapshot.gpu_memory_percent}
+                  primaryColor="hsl(var(--chart-5))"
+                />
+              </section>
+              <div className="flex items-center gap-2 font-medium text-[11px]">
+                {formatBytes(currentSnapshot.gpu_memory_used)} / {formatBytes(currentSnapshot.gpu_memory_total)}
               </div>
             </section>
           </div>
-          <ChartContainer config={chartConfig} className="aspect-auto h-[130px] w-full">
+          <ChartContainer config={chartConfig} className="aspect-auto h-[140px] w-full">
             <LineChart
               accessibilityLayer
-              data={networkChartData}
+              data={chartData}
               margin={{
                 top: 12,
                 left: 12,
@@ -819,7 +814,7 @@ function NetworkChart({
                 tickMargin={8}
                 minTickGap={200}
                 interval="preserveStartEnd"
-                tickFormatter={(value) => formatRelativeTime(value)}
+                tickFormatter={(value) => formatRelativeTime(value as number)}
               />
               <YAxis
                 tickLine={false}
@@ -827,27 +822,20 @@ function NetworkChart({
                 mirror={true}
                 tickMargin={-15}
                 type="number"
-                minTickGap={50}
-                interval="preserveStartEnd"
-                domain={[1, maxDownload]}
-                tickFormatter={(value) => `${value.toFixed(0)}M/s`}
+                domain={[0, 100]}
+                tickFormatter={(value) => `${value.toFixed(0)}%`}
               />
-              <Line
-                isAnimationActive={false}
-                dataKey="upload"
-                type="linear"
-                stroke="hsl(var(--chart-1))"
-                strokeWidth={1}
-                dot={false}
-              />
-              <Line
-                isAnimationActive={false}
-                dataKey="download"
-                type="linear"
-                stroke="hsl(var(--chart-4))"
-                strokeWidth={1}
-                dot={false}
-              />
+              {Object.keys(chartConfig).map((key) => (
+                <Line
+                  key={key}
+                  isAnimationActive={false}
+                  dataKey={key}
+                  type="linear"
+                  stroke={chartConfig[key]?.color ?? "hsl(var(--chart-1))"}
+                  strokeWidth={1.5}
+                  dot={false}
+                />
+              ))}
             </LineChart>
           </ChartContainer>
         </section>
@@ -856,141 +844,6 @@ function NetworkChart({
   )
 }
 
-function ConnectChart({
-  data,
-  history,
-}: {
-  data: NezhaAPISafe
-  history: ServerDataWithTimestamp[]
-}) {
-  const [connectChartData, setConnectChartData] = useState([] as connectChartData[])
-  const hasInitialized = useRef(false)
-  const [historyLoaded, setHistoryLoaded] = useState(false)
-
-  useEffect(() => {
-    if (!hasInitialized.current && history.length > 0) {
-      const historyData = history
-        .map((msg) => {
-          const server = msg.data?.result?.find((item) => item.id === data.id)
-          if (!server) return null
-          const { tcp, udp } = formatNezhaInfo(server)
-          return {
-            timeStamp: msg.timestamp.toString(),
-            tcp: tcp,
-            udp: udp,
-          }
-        })
-        .filter((item): item is connectChartData => item !== null)
-        .reverse()
-
-      setConnectChartData(historyData)
-      hasInitialized.current = true
-      setHistoryLoaded(true)
-    } else if (history.length === 0) {
-      setHistoryLoaded(true)
-    }
-  }, [])
-
-  const { tcp, udp } = formatNezhaInfo(data)
-
-  useEffect(() => {
-    if (data && historyLoaded) {
-      const timestamp = Date.now().toString()
-      let newData = [] as connectChartData[]
-      if (connectChartData.length === 0) {
-        newData = [
-          { timeStamp: timestamp, tcp: tcp, udp: udp },
-          { timeStamp: timestamp, tcp: tcp, udp: udp },
-        ]
-      } else {
-        newData = [...connectChartData, { timeStamp: timestamp, tcp: tcp, udp: udp }]
-      }
-      if (newData.length > MAX_HISTORY_LENGTH) {
-        newData.shift()
-      }
-      setConnectChartData(newData)
-    }
-  }, [data, historyLoaded])
-
-  const chartConfig = {
-    tcp: {
-      label: "TCP",
-    },
-    udp: {
-      label: "UDP",
-    },
-  } satisfies ChartConfig
-
-  return (
-    <Card>
-      <CardContent className="px-6 py-3">
-        <section className="flex flex-col gap-1">
-          <div className="flex items-center">
-            <section className="flex items-center gap-4">
-              <div className="flex w-12 flex-col">
-                <p className="text-muted-foreground text-xs">TCP</p>
-                <div className="flex items-center gap-1">
-                  <span className="relative inline-flex size-1.5 rounded-full bg-[hsl(var(--chart-1))]" />
-                  <p className="font-medium text-xs">{tcp}</p>
-                </div>
-              </div>
-              <div className="flex w-12 flex-col">
-                <p className="text-muted-foreground text-xs">UDP</p>
-                <div className="flex items-center gap-1">
-                  <span className="relative inline-flex size-1.5 rounded-full bg-[hsl(var(--chart-4))]" />
-                  <p className="font-medium text-xs">{udp}</p>
-                </div>
-              </div>
-            </section>
-          </div>
-          <ChartContainer config={chartConfig} className="aspect-auto h-[130px] w-full">
-            <LineChart
-              accessibilityLayer
-              data={connectChartData}
-              margin={{
-                top: 12,
-                left: 12,
-                right: 12,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="timeStamp"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={200}
-                interval="preserveStartEnd"
-                tickFormatter={(value) => formatRelativeTime(value)}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                mirror={true}
-                tickMargin={-15}
-                type="number"
-                interval="preserveStartEnd"
-              />
-              <Line
-                isAnimationActive={false}
-                dataKey="tcp"
-                type="linear"
-                stroke="hsl(var(--chart-1))"
-                strokeWidth={1}
-                dot={false}
-              />
-              <Line
-                isAnimationActive={false}
-                dataKey="udp"
-                type="linear"
-                stroke="hsl(var(--chart-4))"
-                strokeWidth={1}
-                dot={false}
-              />
-            </LineChart>
-          </ChartContainer>
-        </section>
-      </CardContent>
-    </Card>
-  )
+function getAcceleratorKey(accelerator: { slot: number; name: string }) {
+  return `${accelerator.slot}-${accelerator.name}`
 }

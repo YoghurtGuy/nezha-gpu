@@ -1,25 +1,19 @@
 "use client"
 
-import { MapIcon, ViewColumnsIcon } from "@heroicons/react/20/solid"
-import dynamic from "next/dynamic"
+import { ViewColumnsIcon } from "@heroicons/react/20/solid"
 import { useTranslations } from "next-intl"
 import { useEffect, useRef, useState } from "react"
 import { useFilter } from "@/app/context/network-filter-context"
 import { useServerData } from "@/app/context/server-data-context"
 import { useStatus } from "@/app/context/status-context"
-import GlobalLoading from "@/components/loading/GlobalLoading"
 import { Loader } from "@/components/loading/Loader"
 import ServerCard from "@/components/ServerCard"
 import ServerCardInline from "@/components/ServerCardInline"
 import Switch from "@/components/Switch"
 import ShinyText from "@/components/ui/shiny-text"
 import getEnv from "@/lib/env-entry"
-import { cn } from "@/lib/utils"
+import { cn, formatNezhaInfo } from "@/lib/utils"
 
-const ServerGlobal = dynamic(() => import("./Global"), {
-  ssr: false,
-  loading: () => <GlobalLoading />,
-})
 
 const sortServersByDisplayIndex = (servers: any[]) => {
   return servers.sort((a, b) => {
@@ -38,12 +32,14 @@ const filterServersByTag = (servers: any[], tag: string, defaultTag: string) => 
   return tag === defaultTag ? servers : servers.filter((server) => server.tag === tag)
 }
 
-const sortServersByNetwork = (servers: any[]) => {
+const sortServersByAccelerator = (servers: any[]) => {
   return [...servers].sort((a, b) => {
     if (!a.online_status && b.online_status) return 1
     if (a.online_status && !b.online_status) return -1
     if (!a.online_status && !b.online_status) return 0
-    return b.status.NetInSpeed + b.status.NetOutSpeed - (a.status.NetInSpeed + a.status.NetOutSpeed)
+    const usageA = formatNezhaInfo(a).gpu_memory_percent
+    const usageB = formatNezhaInfo(b).gpu_memory_percent
+    return usageB - usageA
   })
 }
 
@@ -116,18 +112,12 @@ export default function ServerListClient() {
   const defaultTag = "defaultTag"
 
   const [tag, setTag] = useState<string>(defaultTag)
-  const [showMap, setShowMap] = useState<boolean>(false)
   const [inline, setInline] = useState<string>("0")
 
   useEffect(() => {
     const inlineState = localStorage.getItem("inline")
     if (inlineState !== null) {
       setInline(inlineState)
-    }
-
-    const showMapState = localStorage.getItem("showMap")
-    if (showMapState !== null) {
-      setShowMap(showMapState === "true")
     }
 
     const savedTag = sessionStorage.getItem("selectedTag") || defaultTag
@@ -174,7 +164,7 @@ export default function ServerListClient() {
   let filteredServers = filterServersByTag(filteredServersByStatus, tag, defaultTag)
 
   if (filter) {
-    filteredServers = sortServersByNetwork(filteredServers)
+    filteredServers = sortServersByAccelerator(filteredServers)
   }
 
   const tagCountMap = getTagCounts(filteredServersByStatus)
@@ -182,23 +172,6 @@ export default function ServerListClient() {
   return (
     <>
       <section className="flex w-full items-center gap-2 overflow-hidden">
-        <button
-          type="button"
-          onClick={() => {
-            const newShowMap = !showMap
-            setShowMap(newShowMap)
-            localStorage.setItem("showMap", String(newShowMap))
-          }}
-          className={cn(
-            "inset-shadow-2xs inset-shadow-white/20 flex cursor-pointer flex-col items-center gap-0 rounded-[50px] bg-blue-100 p-2.5 text-blue-600 transition-all dark:bg-blue-900 dark:text-blue-100",
-            {
-              "inset-shadow-black/20 bg-blue-600 text-white dark:bg-blue-100 dark:text-blue-600":
-                showMap,
-            },
-          )}
-        >
-          <MapIcon className="size-[13px]" />
-        </button>
         <button
           type="button"
           onClick={() => {
@@ -225,7 +198,6 @@ export default function ServerListClient() {
           />
         )}
       </section>
-      {showMap && <ServerGlobal />}
       <ServerList servers={filteredServers} inline={inline} containerRef={containerRef} />
     </>
   )

@@ -1,11 +1,12 @@
 {
   "ServerOverviewClient": {
-    "p_816-881_Totalservers": "Total servers",
-    "p_1610-1676_Onlineservers": "Online servers",
-    "p_2532-2599_Offlineservers": "Offline servers",
-    "p_3463-3530_Totalbandwidth": "Total bandwidth",
-    "speed": "speed",
-    "network": "Network",
+    "accelerator_total": "Total accelerators",
+    "accelerator_idle": "Idle accelerators",
+    "accelerator_vram": "Accelerator VRAM",
+    "accelerator_utilization": "Accelerators utilization",
+    "accelerators": "Accelerators",
+    "vram_usage": "VRAM usage",
+    "gpu_utilization": "GPU utilization",
     "error_message": "Please check your environment variables and review the server console",
     "no_data_message": "No data"
   },
@@ -21,6 +22,10 @@
     "STG": "STG",
     "Upload": "Upload",
     "Download": "Download",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util",
+    "GpuCapacity": "VRAM total",
+    "GpuMemoryUsed": "VRAM used",
     "Offline": "Offline",
     "Uptime": "Uptime",
     "TotalUpload": "Upload",
@@ -30,6 +35,7 @@
   "TabSwitch": {
     "Detail": "Detail",
     "Network": "Network",
+    "Accelerators": "Accelerators",
     "disabled_tooltip": "This feature is not available in current mode"
   },
   "SignIn": {
@@ -54,9 +60,14 @@
     "Region": "Region"
   },
   "NetworkChartClient": {
-    "avg_delay": "Latency",
-    "packet_loss": "Packet Loss",
-    "chart_fetch_error_message": "Failed to fetch network data, please check if the server monitoring is enabled"
+    "chart_fetch_error_message": "Failed to fetch accelerator data",
+    "GpuMemoryHistory": "VRAM history",
+    "GpuMemoryHistoryDescription": "Recent VRAM usage based on device reports",
+    "GpuUtilHistory": "GPU utilization history",
+    "GpuUtilHistoryDescription": "Aggregated accelerator utilization over time",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util",
+    "Power": "Power"
   },
   "IPInfo": {
     "analysing": "Analysing IP info...",
@@ -92,7 +103,16 @@
     "Download": "Download",
     "Load": "Load",
     "LastActive": "Last Active",
-    "BootTime": "Boot Time"
+    "BootTime": "Boot Time",
+    "AcceleratorsTitle": "Accelerator usage",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util",
+    "GpuMemoryUsed": "VRAM used",
+    "GpuCapacity": "VRAM total",
+    "Power": "Power",
+    "Temperature": "Temperature",
+    "Processes": "Processes",
+    "NoHistory": "No accelerator history yet"
   },
   "ServerDetailChartClient": {
     "chart_fetch_error_message": "Please check your environment variables and review the server console",
@@ -101,7 +121,9 @@
     "Mem": "Mem",
     "Swap": "Swap",
     "Upload": "Upload",
-    "Download": "Download"
+    "Download": "Download",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util"
   },
   "ThemeSwitcher": {
     "Light": "Light",

@@ -1,5 +1,5 @@
 import type React from "react"
-import Footer from "@/app/(main)/footer"
+// import Footer from "@/app/(main)/footer"
 import Header from "@/app/(main)/header"
 import { CommandProvider } from "@/app/context/command-context"
 import { FilterProvider } from "@/app/context/network-filter-context"
@@ -27,7 +27,7 @@ export default function MainLayout({ children }: DashboardProps) {
                   <DashCommand />
                 </ServerDataProvider>
               </AuthProtected>
-              <Footer />
+              {/* <Footer /> */}
             </StatusProvider>
           </FilterProvider>
         </CommandProvider>

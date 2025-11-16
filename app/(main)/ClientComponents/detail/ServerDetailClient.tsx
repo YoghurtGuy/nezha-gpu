@@ -93,10 +93,11 @@ export default function ServerDetailClient({ server_id }: { server_id: number })
     load_1,
     load_5,
     load_15,
-    net_out_transfer,
-    net_in_transfer,
     last_active_time_string,
     boot_time_string,
+    accelerators,
+    gpu_memory_used,
+    gpu_memory_total,
   } = formatNezhaInfo(serverData)
 
   return (
@@ -244,24 +245,16 @@ export default function ServerDetailClient({ server_id }: { server_id: number })
         <Card className="rounded-[10px] border-none bg-transparent shadow-none">
           <CardContent className="px-1.5 py-1">
             <section className="flex flex-col items-start gap-0.5">
-              <p className="text-muted-foreground text-xs">{t("Upload")}</p>
-              {net_out_transfer ? (
-                <div className="text-xs"> {formatBytes(net_out_transfer)} </div>
-              ) : (
-                <div className="text-xs">Unknown</div>
-              )}
+              <p className="text-muted-foreground text-xs">{t("GpuMemoryUsed")}</p>
+              <div className="text-xs">{formatBytes(gpu_memory_used)}</div>
             </section>
           </CardContent>
         </Card>
         <Card className="rounded-[10px] border-none bg-transparent shadow-none">
           <CardContent className="px-1.5 py-1">
             <section className="flex flex-col items-start gap-0.5">
-              <p className="text-muted-foreground text-xs">{t("Download")}</p>
-              {net_in_transfer ? (
-                <div className="text-xs"> {formatBytes(net_in_transfer)} </div>
-              ) : (
-                <div className="text-xs">Unknown</div>
-              )}
+              <p className="text-muted-foreground text-xs">{t("GpuCapacity")}</p>
+              <div className="text-xs">{formatBytes(gpu_memory_total)}</div>
             </section>
           </CardContent>
         </Card>

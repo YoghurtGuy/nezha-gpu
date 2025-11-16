@@ -1,33 +1,28 @@
 "use client"
 
+import type React from "react"
 import { use, useState } from "react"
 import { NetworkChartClient } from "@/app/(main)/ClientComponents/detail/NetworkChart"
 import ServerDetailChartClient from "@/app/(main)/ClientComponents/detail/ServerDetailChartClient"
 import ServerDetailClient from "@/app/(main)/ClientComponents/detail/ServerDetailClient"
+import { ServerAcceleratorList } from "@/app/(main)/ClientComponents/detail/ServerAcceleratorList"
 import ServerDetailSummary from "@/app/(main)/ClientComponents/detail/ServerDetailSummary"
 import ServerIPInfo from "@/app/(main)/ClientComponents/detail/ServerIPInfo"
 import TabSwitch from "@/components/TabSwitch"
 import { Separator } from "@/components/ui/separator"
-import getEnv from "@/lib/env-entry"
 
 type PageProps = {
   params: Promise<{ id: string }>
 }
 
-type TabType = "Detail" | "Network"
+type TabType = "Detail" | "Accelerators"
 
 export default function Page({ params }: PageProps) {
   const { id } = use(params)
   const serverId = Number(id)
 
-  // Check if alternative driver modes are enabled
-  const isKomariMode = getEnv("NEXT_PUBLIC_Komari") === "true"
-  const isMyNodeQueryMode = getEnv("NEXT_PUBLIC_MyNodeQuery") === "true"
-  const disableNetworkTab = isKomariMode || isMyNodeQueryMode
-
-  // Always show both tabs, but disable Network tab in Komari mode
-  const tabs: TabType[] = ["Detail", "Network"]
-  const disabledTabs: TabType[] = disableNetworkTab ? ["Network"] : []
+  const tabs: TabType[] = ["Detail", "Accelerators"]
+  const disabledTabs: TabType[] = []
   const [currentTab, setCurrentTab] = useState<TabType>(tabs[0])
 
   // Handle tab switching - prevent switching to disabled tabs
@@ -37,23 +32,9 @@ export default function Page({ params }: PageProps) {
     }
   }
 
-  const tabContent = {
+  const tabContent: Record<TabType, React.ReactNode> = {
     Detail: <ServerDetailChartClient server_id={serverId} show={currentTab === "Detail"} />,
-    Network: disableNetworkTab ? (
-      <div className="flex flex-col items-center justify-center p-8">
-        <div className="text-center">
-          <p className="mb-2 font-medium text-lg">网络延迟图表不可用</p>
-          <p className="text-muted-foreground text-sm">
-            当前数据源模式下，网络延迟监控功能未提供。
-          </p>
-        </div>
-      </div>
-    ) : (
-      <>
-        {getEnv("NEXT_PUBLIC_ShowIpInfo") && <ServerIPInfo server_id={serverId} />}
-        <NetworkChartClient server_id={serverId} show={currentTab === "Network"} />
-      </>
-    ),
+    Accelerators: <ServerAcceleratorList server_id={serverId} />,
   }
 
   return (

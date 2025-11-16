@@ -11,8 +11,20 @@ import { cn, formatBytes, formatNezhaInfo } from "@/lib/utils"
 
 export default function ServerCard({ serverInfo }: { serverInfo: NezhaAPISafe }) {
   const t = useTranslations("ServerCard")
-  const { id, name, country_code, online, cpu, up, down, mem, stg, host } =
-    formatNezhaInfo(serverInfo)
+  const {
+    id,
+    name,
+    country_code,
+    online,
+    cpu,
+    mem,
+    stg,
+    host,
+    gpu,
+    gpu_memory_percent,
+    gpu_memory_used,
+    gpu_memory_total,
+  } = formatNezhaInfo(serverInfo)
 
   const showFlag = getEnv("NEXT_PUBLIC_ShowFlag") === "true"
   const showNetTransfer = getEnv("NEXT_PUBLIC_ShowNetTransfer") === "true"
@@ -69,7 +81,7 @@ export default function ServerCard({ serverInfo }: { serverInfo: NezhaAPISafe })
               <div className={"col-span-1 hidden items-center gap-2 lg:flex lg:flex-row"}>
                 <div className="font-semibold text-xs">
                   {host.Platform.includes("Windows") ? (
-                    <MageMicrosoftWindows className="size-[10px]" />
+                    <MageMicrosoftWindows className="size-2.5" />
                   ) : (
                     <p className={`fl-${GetFontLogoClass(host.Platform)}`} />
                   )}
@@ -98,16 +110,16 @@ export default function ServerCard({ serverInfo }: { serverInfo: NezhaAPISafe })
               <ServerUsageBar value={stg} />
             </div>
             <div className={"flex w-14 flex-col"}>
-              <p className="text-muted-foreground text-xs">{t("Upload")}</p>
-              <div className="flex items-center font-semibold text-xs">
-                {up >= 1024 ? `${(up / 1024).toFixed(2)}G/s` : `${up.toFixed(2)}M/s`}
+              <p className="text-muted-foreground text-xs">{t("GpuMemory")}</p>
+              <div className="flex items-center justify-between font-semibold text-[11px]">
+                <span>{gpu_memory_percent.toFixed(1)}%</span>
               </div>
+              <ServerUsageBar value={gpu_memory_percent} />
             </div>
             <div className={"flex w-14 flex-col"}>
-              <p className="text-muted-foreground text-xs">{t("Download")}</p>
-              <div className="flex items-center font-semibold text-xs">
-                {down >= 1024 ? `${(down / 1024).toFixed(2)}G/s` : `${down.toFixed(2)}M/s`}
-              </div>
+              <p className="text-muted-foreground text-xs">{t("GpuUtil")}</p>
+              <div className="flex items-center font-semibold text-xs">{gpu.toFixed(1)}%</div>
+              <ServerUsageBar value={gpu} />
             </div>
           </section>
           {showNetTransfer && (
@@ -116,13 +128,13 @@ export default function ServerCard({ serverInfo }: { serverInfo: NezhaAPISafe })
                 variant="secondary"
                 className="flex-1 items-center justify-center text-nowrap rounded-[8px] border-muted-50 text-[11px] shadow-md shadow-neutral-200/30 dark:shadow-none"
               >
-                {t("Upload")}:{formatBytes(serverInfo.status.NetOutTransfer)}
+                {t("GpuMemory")}:{formatBytes(gpu_memory_used)}
               </Badge>
               <Badge
                 variant="outline"
                 className="flex-1 items-center justify-center text-nowrap rounded-[8px] text-[11px] shadow-md shadow-neutral-200/30 dark:shadow-none"
               >
-                {t("Download")}:{formatBytes(serverInfo.status.NetInTransfer)}
+                {t("GpuCapacity")}:{formatBytes(gpu_memory_total)}
               </Badge>
             </section>
           )}

@@ -1,69 +1,93 @@
 <div align="center"><img width="600" alt="nezhadash" src="https://github.com/user-attachments/assets/0a5768e1-96f2-4f8a-b77f-01488ed3b237"></div>
-<h3 align="center">NezhaDash 是一个基于 Next.js 和 哪吒监控 的仪表盘</h3>
+<h3 align="center">NezhaDash-GPU 是一个基于 Next.js 实验室显卡监控 的仪表盘</h3>
 <br>
-
+修改自 [NezhaDash](https://github.com/hamster1963/nezha-dash)
 </div>
 
-> [!CAUTION]
-> 此为 V0 兼容版本，与 V1 内置版本功能上可能有所不同
->
-> V0 | V1 版本 issue 请在当前仓库发起
 
-> [!TIP]
-> 有关 V1 版本 pr 可移步 https://github.com/hamster1963/nezha-dash-v1
+### GPU 实验室模式
 
-### 部署
+如果需要以本地加速器为核心进行监控，可以启用内置的 Prisma/PostgreSQL 数据源：
 
-支持部署环境：
+1. 设置数据库连接并开启实验室模式：
 
-- Vercel
-- Cloudflare
-- Docker
+```bash
+export DATABASE_URL=\"postgresql://USER:PASSWORD@HOST:PORT/DB\"
+export LabIngestToken=\"自定义上报密钥\"
+export NEXT_PUBLIC_FreeGpuMemoryPercent=\"10\" # 可选：用于首页空闲加速卡阈值
+```
 
-[演示站点](https://nezha-vercel.vercel.app)
-[说明文档](https://nezhadash-docs.vercel.app)
+2. 安装依赖后生成 Prisma Client（首次部署或模型变更时执行）：
 
-### 如何更新
+```bash
+npx prisma migrate deploy
+```
 
-[更新教程](https://buycoffee.top/blog/tech/nezha-upgrade)
+3. 通过 `POST /api/devices/ingest` 上报最新的设备状态，必须携带 `x-lab-token: $LabIngestToken` 请求头。示例请求体：
 
-### 环境变量
+```json
+{
+  "device": {
+    "slug": "lab-gpu-01",
+    "name": "A100-NODE-01",
+    "location": "實驗室 A",
+    "platform": "Ubuntu 22.04",
+    "cpuInfo": ["Intel Xeon Gold 6330"],
+    "acceleratorInfo": ["NVIDIA A100 80GB"]
+  },
+  "snapshot": {
+    "recordedAt": "2024-05-01T12:00:00Z",
+    "uptimeSeconds": 86400,
+    "cpuUsage": 42.5,
+    "memory": {
+      "totalBytes": 549755813888,
+      "usedBytes": 322122547200
+    },
+    "gpu": {
+      "utilization": 71.2
+    }
+  },
+  "accelerators": [
+    {
+      "slot": 0,
+      "name": "NVIDIA A100 80GB",
+      "memoryTotalBytes": 85899345920,
+      "memoryUsedBytes": 42949672960,
+      "utilization": 72.5,
+      "temperatureC": 64,
+      "powerWatts": 245,
+      "processes": [
+        {
+          "pid": 13579,
+          "name": "train.py",
+          "user": "alice",
+          "memoryBytes": 32212254720
+        }
+      ]
+    }
+  ]
+}
+```
 
-[环境变量介绍](https://nezhadash-docs.vercel.app/environment)
+每 5 分钟推送一次即可在仪表盘首页与详情页看到加速器（GPU/NPU）的显存使用、平均利用率、功耗及进程列表等历史数据。
 
-#### Komari 面板 API 兼容
+仓库内也提供了一个简单的 Linux NVIDIA 采集脚本 `scripts/nvidia_ingest.py`，依赖 `psutil` 与 `requests`：
 
-> [!CAUTION]
-> 实验性，未来可能会移除
+```bash
+pip install psutil requests
+LAB_ENDPOINT="https://your-host/api/devices/ingest" \
+LAB_TOKEN="与 LabIngestToken 一致" \
+LAB_DEVICE_SLUG="$(hostname -s)" \
+python3 scripts/nvidia_ingest.py   # 默认每 5 分钟循环一次
+```
 
-NezhaDash 现在支持 Komari 面板数据源。要启用 Komari 模式，请设置以下环境变量：
+若希望通过 systemd/cron 定时采集，可添加 `--once` 参数并将脚本放入计划任务中。
 
-- `NEXT_PUBLIC_Komari=true` - 启用 Komari 面板兼容模式
-- `KomariBaseUrl=https://ss.akz.moe` - Komari 面板的基础 URL
+如果需要采集华为昇腾（Ascend）数据，可使用 `scripts/ascend_ingest.py`（依赖同上，并要求 `npu-smi` 提供 JSON 输出）：
 
-当启用 Komari 模式时，系统将从以下 API 端点获取数据：
-- `KomariBaseUrl/api/nodes` - 获取服务器列表信息
-- `KomariBaseUrl/api/recent/{uuid}` - 获取每个服务器的实时监控数据
-
-> [!NOTE]
-> 在 Komari 模式下，系统会并发获取所有服务器的实时数据，提供准确的当前状态监控。如果某个服务器的实时数据获取失败，系统会降级到基础信息显示。
-
-#### MyNodeQuery 面板兼容
-
-NezhaDash 同样支持 [MyNodeQuery](https://status.idcoffer.com/) 数据源。要启用 MyNodeQuery 模式，请设置以下环境变量：
-
-- `NEXT_PUBLIC_MyNodeQuery=true` - 启用 MyNodeQuery 兼容模式
-- `MyNodeQueryBaseUrl=https://status.idcoffer.com` - MyNodeQuery 面板的基础 URL
-
-启用后系统会调用官方面板提供的 POST 接口：
-- `MyNodeQueryBaseUrl/Dashboard/GetNodes` - 获取服务器列表
-- `MyNodeQueryBaseUrl/Detail/GetDetail` - 获取指定服务器的详细信息（请求体：`{"UniqueID":"<节点 UniqueID>"}`）
-
-> [!NOTE]
-> MyNodeQuery 模式下仪表盘的网络图表会自动隐藏。
-
-![screen](/.github/v2-1.webp)
-![screen](/.github/v2-2.webp)
-![screen](/.github/v2-3.webp)
-![screen](/.github/v2-4.webp)
-![screen](/.github/v2-dark.webp)
+```bash
+pip install psutil requests
+LAB_ENDPOINT="https://your-host/api/devices/ingest" \
+LAB_TOKEN="your-secret-token" \
+python3 scripts/ascend_ingest.py --once
+```

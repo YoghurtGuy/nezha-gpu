@@ -4,11 +4,8 @@ import { DateTime } from "luxon"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { memo, useCallback, useEffect, useState } from "react"
-import { DriverBadge } from "@/app/(main)/ClientComponents/DriverBadge"
 import { AnimateCountClient } from "@/components/AnimatedCount"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
-import { NetworkButton } from "@/components/NetworkButton"
-import { SearchButton } from "@/components/SearchButton"
 import { ModeToggle } from "@/components/ThemeSwitcher"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -147,12 +144,9 @@ function Header() {
           </p>
         </button>
         <section className="flex items-center gap-2">
-          <DriverBadge />
           <div className="hidden sm:block">
             <Links />
           </div>
-          <NetworkButton />
-          <SearchButton />
           <LanguageSwitcher />
           <ModeToggle />
         </section>

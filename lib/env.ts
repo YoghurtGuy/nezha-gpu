@@ -4,10 +4,6 @@ import { env } from "next-runtime-env"
  * Server-side environment variables
  */
 export interface ServerEnvConfig {
-  /** Nezha API base URL */
-  NezhaBaseUrl: string
-  /** Nezha API authentication token */
-  NezhaAuth: string
   /** Default locale for the application */
   DefaultLocale: string
   /** Force show all servers */
@@ -16,17 +12,17 @@ export interface ServerEnvConfig {
   SitePassword: string
   /** Enable packet loss calculation */
   EnablePacketLossCalculation: boolean
-  /** Komari API base URL */
-  KomariBaseUrl: string
-  /** MyNodeQuery API base URL */
-  MyNodeQueryBaseUrl: string
+  /** Shared secret for ingestion endpoint */
+  LabIngestToken: string
+  /** Prisma database connection URL */
+  DATABASE_URL: string
 }
 
 /**
  * Client-side environment variables (NEXT_PUBLIC_*)
  */
 export interface ClientEnvConfig {
-  /** Nezha data fetch interval in milliseconds */
+  /** Data fetch interval in milliseconds */
   NezhaFetchInterval: number
   /** Show country flags */
   ShowFlag: boolean
@@ -54,10 +50,8 @@ export interface ClientEnvConfig {
   ShowTagCount: boolean
   /** Show IP information */
   ShowIpInfo: boolean
-  /** Enable Komari panel compatibility */
-  Komari: boolean
-  /** Enable MyNodeQuery panel compatibility */
-  MyNodeQuery: boolean
+  /** Percent threshold to treat an accelerator as idle */
+  FreeGpuMemoryPercent: number
 }
 
 /**
@@ -129,14 +123,12 @@ export function parseNumber(value: string | undefined, defaultValue: number): nu
 export function getAllEnvConfig(): { server: ServerEnvConfig; client: ClientEnvConfig } {
   return {
     server: {
-      NezhaBaseUrl: getServerEnv("NezhaBaseUrl") || "",
-      NezhaAuth: getServerEnv("NezhaAuth") || "",
       DefaultLocale: getServerEnv("DefaultLocale") || "",
       ForceShowAllServers: parseBoolean(getServerEnv("ForceShowAllServers")),
       SitePassword: getServerEnv("SitePassword") || "",
       EnablePacketLossCalculation: parseBoolean(getServerEnv("EnablePacketLossCalculation")),
-      KomariBaseUrl: getServerEnv("KomariBaseUrl") || "",
-      MyNodeQueryBaseUrl: getServerEnv("MyNodeQueryBaseUrl") || "",
+      LabIngestToken: getServerEnv("LabIngestToken") || "",
+      DATABASE_URL: getServerEnv("DATABASE_URL") || "",
     },
     client: {
       NezhaFetchInterval: parseNumber(getClientEnv("NezhaFetchInterval"), 5000),
@@ -153,8 +145,7 @@ export function getAllEnvConfig(): { server: ServerEnvConfig; client: ClientEnvC
       DisableIndex: parseBoolean(getClientEnv("DisableIndex")),
       ShowTagCount: parseBoolean(getClientEnv("ShowTagCount")),
       ShowIpInfo: parseBoolean(getClientEnv("ShowIpInfo")),
-      Komari: parseBoolean(getClientEnv("Komari")),
-      MyNodeQuery: parseBoolean(getClientEnv("MyNodeQuery")),
+      FreeGpuMemoryPercent: parseNumber(getClientEnv("FreeGpuMemoryPercent"), 10),
     },
   }
 }

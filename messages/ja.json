@@ -1,11 +1,12 @@
 {
   "ServerOverviewClient": {
-    "p_816-881_Totalservers": "サーバーの総数",
-    "p_1610-1676_Onlineservers": "オンラインサーバー",
-    "p_2532-2599_Offlineservers": "オフラインサーバー",
-    "p_3463-3530_Totalbandwidth": "総流量",
-    "speed": "速度",
-    "network": "ネットワーク",
+    "accelerator_total": "アクセラレータ総数",
+    "accelerator_idle": "アイドル加速器",
+    "accelerator_vram": "アクセラレータ VRAM",
+    "accelerator_utilization": "加速器利用率",
+    "accelerators": "アクセラレータ",
+    "vram_usage": "VRAM 使用量",
+    "gpu_utilization": "GPU 使用率",
     "error_message": "環境変数を確認し、サーバーコンソールを確認してください",
     "no_data_message": "データなし"
   },
@@ -21,6 +22,10 @@
     "STG": "STG",
     "Upload": "Upload",
     "Download": "Download",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util",
+    "GpuCapacity": "VRAM 合計",
+    "GpuMemoryUsed": "VRAM 使用中",
     "Offline": "Offline",
     "Uptime": "Uptime",
     "TotalUpload": "Upload",
@@ -29,7 +34,8 @@
   },
   "TabSwitch": {
     "Detail": "詳細",
-    "Network": "ネットワーク"
+    "Network": "ネットワーク",
+    "Accelerators": "アクセラレータ"
   },
   "SignIn": {
     "SignInMessage": "パスワードを入力してください",
@@ -53,9 +59,14 @@
     "Region": "地域"
   },
   "NetworkChartClient": {
-    "avg_delay": "遅延",
-    "packet_loss": "パケットロス率",
-    "chart_fetch_error_message": "ネットワークデータの取得に失敗しました。サーバーの監視が有効になっているかどうかを確認してください"
+    "chart_fetch_error_message": "アクセラレーターデータの取得に失敗しました",
+    "GpuMemoryHistory": "VRAM 履歴",
+    "GpuMemoryHistoryDescription": "デバイスから送信された VRAM 使用状況",
+    "GpuUtilHistory": "GPU 使用率の履歴",
+    "GpuUtilHistoryDescription": "直近の報告に基づく利用率",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util",
+    "Power": "消費電力"
   },
   "IPInfo": {
     "analysing": "IP情報を分析中...",
@@ -91,7 +102,16 @@
     "Upload": "Upload",
     "Download": "Download",
     "LastActive": "Last Active",
-    "BootTime": "Boot Time"
+    "BootTime": "Boot Time",
+    "AcceleratorsTitle": "アクセラレータ詳細",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util",
+    "GpuMemoryUsed": "VRAM 使用中",
+    "GpuCapacity": "VRAM 合計",
+    "Power": "Power",
+    "Temperature": "温度",
+    "Processes": "プロセス",
+    "NoHistory": "履歴データがありません"
   },
   "ServerDetailChartClient": {
     "chart_fetch_error_message": "環境変数を確認し、サーバーコンソールを確認してください",
@@ -100,7 +120,9 @@
     "Mem": "メモリ",
     "Swap": "スワップ",
     "Upload": "アップロード",
-    "Download": "ダウンロード"
+    "Download": "ダウンロード",
+    "GpuMemory": "VRAM",
+    "GpuUtil": "GPU Util"
   },
   "ThemeSwitcher": {
     "Light": "ライト",

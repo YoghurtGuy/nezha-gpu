@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AcceleratorKind {
+  GPU
+  NPU
+}
+
+model Device {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  name            String
+  tag             String?
+  location        String?
+  rack            String?
+  ipAddress       String?
+  displayIndex    Int      @default(0)
+  platform        String?
+  platformVersion String?
+  arch            String?
+  cpuInfo         String[] @default([])
+  acceleratorInfo String[] @default([])
+  virtualization  String?
+  version         String?
+  bootTime        DateTime?
+  countryCode     String?
+  memTotalBytes   BigInt?
+  diskTotalBytes  BigInt?
+  swapTotalBytes  BigInt?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  snapshots       DeviceSnapshot[]
+  acceleratorDevices AcceleratorDevice[]
+}
+
+model DeviceSnapshot {
+  id                  Int      @id @default(autoincrement())
+  device              Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId            Int
+  recordedAt          DateTime @default(now())
+  uptimeSeconds       Int?
+  online              Boolean  @default(true)
+  cpuUsage            Float?
+  memUsedBytes        BigInt?
+  diskUsedBytes       BigInt?
+  swapUsedBytes       BigInt?
+  memTotalBytes       BigInt?
+  diskTotalBytes      BigInt?
+  swapTotalBytes      BigInt?
+  netInTransferBytes  BigInt?
+  netOutTransferBytes BigInt?
+  netInSpeedBytes     Float?
+  netOutSpeedBytes    Float?
+  load1               Float?
+  load5               Float?
+  load15              Float?
+  tcpConnections      Int?
+  udpConnections      Int?
+  processCount        Int?
+  gpuUtilization      Float?
+  gpuMemoryUsedBytes  BigInt?
+  gpuMemoryTotalBytes BigInt?
+  temperatureC        Float?
+  powerWatts          Float?
+  note                String?
+  createdAt           DateTime @default(now())
+  accelerators        AcceleratorSnapshot[]
+
+  @@index([deviceId, recordedAt])
+}
+
+model AcceleratorDevice {
+  id           Int      @id @default(autoincrement())
+  device       Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  deviceId     Int
+  slot         Int
+  name         String
+  vendor       String?
+  busId        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  snapshots    AcceleratorSnapshot[]
+
+  @@unique([deviceId, slot])
+}
+
+model AcceleratorSnapshot {
+  id                Int               @id @default(autoincrement())
+  snapshot          DeviceSnapshot    @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  snapshotId        Int
+  slot              Int
+  kind              AcceleratorKind   @default(GPU)
+  name              String
+  vendor            String?
+  busId             String?
+  memoryTotalBytes  BigInt
+  memoryUsedBytes   BigInt
+  utilization       Float?
+  memoryUtilization Float?
+  temperatureC      Float?
+  powerWatts        Float?
+  createdAt         DateTime          @default(now())
+  processes         AcceleratorProcess[]
+  acceleratorDevice AcceleratorDevice? @relation(fields: [acceleratorDeviceId], references: [id], onDelete: SetNull)
+  acceleratorDeviceId Int?
+
+  @@index([snapshotId])
+}
+
+model AcceleratorProcess {
+  id             Int                @id @default(autoincrement())
+  accelerator    AcceleratorSnapshot @relation(fields: [acceleratorId], references: [id], onDelete: Cascade)
+  acceleratorId  Int
+  pid            Int?
+  name           String
+  user           String?
+  labUser        LabUser?            @relation(fields: [labUserId], references: [id], onDelete: SetNull)
+  labUserId      Int?
+  memoryBytes    BigInt?
+  createdAt      DateTime           @default(now())
+
+  @@index([acceleratorId])
+}
+
+model LabUser {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  displayName String?
+  email     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  processes AcceleratorProcess[]
+}
