@@ -6,11 +6,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+type AcceleratorLike = { kind?: string; vendor?: string }
+
+export function getAcceleratorIcon(accelerators: AcceleratorLike[] = []) {
+  const hasNpu = accelerators.some((accelerator) => {
+    const vendor = accelerator.vendor?.toLowerCase() ?? ""
+    const kind = accelerator.kind?.toUpperCase()
+    return kind === "NPU" || vendor.includes("huawei")
+  })
+
+  return {
+    iconSrc: hasNpu ? "/HUAWEI.svg" : "/NVIDIA.svg",
+    hasNpu,
+  }
+}
+
 export function formatNezhaInfo(serverInfo: NezhaAPISafe) {
   const memTotal = serverInfo.host.MemTotal || 0
   const swapTotal = serverInfo.host.SwapTotal || 0
   const diskTotal = serverInfo.host.DiskTotal || 0
   const accelerators = serverInfo.status.Accelerators ?? []
+  const { iconSrc: acceleratorIcon, hasNpu } = getAcceleratorIcon(accelerators)
   const acceleratorTotals = accelerators.reduce(
     (acc, accelerator) => {
       acc.used += accelerator.memoryUsedBytes || 0
@@ -68,6 +84,8 @@ export function formatNezhaInfo(serverInfo: NezhaAPISafe) {
     gpu_memory_total: gpuMemoryTotal,
     gpu_memory_percent: safePercent(gpuMemoryUsed, gpuMemoryTotal),
     accelerators,
+    acceleratorIcon,
+    hasNpu,
   }
 }
 

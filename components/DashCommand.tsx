@@ -1,12 +1,14 @@
 "use client"
 
 import { Activity, Home, Languages, Moon, Sun, SunMoon } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { useCommand } from "@/app/context/command-context"
 import { useServerData } from "@/app/context/server-data-context"
+import { getAcceleratorIcon } from "@/lib/utils"
 import {
   CommandDialog,
   CommandEmpty,
@@ -112,6 +114,13 @@ export function DashCommand() {
               ) : (
                 <span className="h-2 w-2 shrink-0 self-center rounded-full bg-red-500" />
               )}
+              <Image
+                src={getAcceleratorIcon(server.status?.Accelerators ?? []).iconSrc}
+                alt="Accelerator vendor"
+                width={14}
+                height={14}
+                className="ml-2 mr-1 h-3.5 w-3.5"
+              />
               <span>{server.name}</span>
             </CommandItem>
           ))}

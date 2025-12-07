@@ -112,18 +112,18 @@ export default function ServerListClient() {
   const defaultTag = "defaultTag"
 
   const [tag, setTag] = useState<string>(defaultTag)
-  const [inline, setInline] = useState<string>("0")
+  // const [inline, setInline] = useState<string>("0")
 
-  useEffect(() => {
-    const inlineState = localStorage.getItem("inline")
-    if (inlineState !== null) {
-      setInline(inlineState)
-    }
+  // useEffect(() => {
+  //   const inlineState = localStorage.getItem("inline")
+  //   if (inlineState !== null) {
+  //     setInline(inlineState)
+  //   }
 
-    const savedTag = sessionStorage.getItem("selectedTag") || defaultTag
-    setTag(savedTag)
-    restoreScrollPosition()
-  }, [])
+  //   const savedTag = sessionStorage.getItem("selectedTag") || defaultTag
+  //   setTag(savedTag)
+  //   restoreScrollPosition()
+  // }, [])
 
   const handleTagChange = (newTag: string) => {
     setTag(newTag)
@@ -172,7 +172,7 @@ export default function ServerListClient() {
   return (
     <>
       <section className="flex w-full items-center gap-2 overflow-hidden">
-        <button
+        {/* <button
           type="button"
           onClick={() => {
             const newInline = inline === "0" ? "1" : "0"
@@ -188,7 +188,7 @@ export default function ServerListClient() {
           )}
         >
           <ViewColumnsIcon className="size-[13px]" />
-        </button>
+        </button> */}
         {getEnv("NEXT_PUBLIC_ShowTag") === "true" && (
           <Switch
             allTag={uniqueTags}
@@ -198,7 +198,7 @@ export default function ServerListClient() {
           />
         )}
       </section>
-      <ServerList servers={filteredServers} inline={inline} containerRef={containerRef} />
+      <ServerList servers={filteredServers} inline={"1"} containerRef={containerRef} />
     </>
   )
 }

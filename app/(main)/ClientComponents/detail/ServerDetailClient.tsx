@@ -2,6 +2,7 @@
 
 import countries from "i18n-iso-countries"
 import enLocale from "i18n-iso-countries/langs/en.json"
+import Image from "next/image"
 import { notFound, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
@@ -98,6 +99,7 @@ export default function ServerDetailClient({ server_id }: { server_id: number })
     accelerators,
     gpu_memory_used,
     gpu_memory_total,
+    acceleratorIcon,
   } = formatNezhaInfo(serverData)
 
   return (
@@ -107,6 +109,13 @@ export default function ServerDetailClient({ server_id }: { server_id: number })
         className="flex flex-none cursor-pointer items-center gap-0.5 break-all font-semibold text-xl leading-none tracking-tight transition-opacity duration-300 hover:opacity-50"
       >
         <BackIcon />
+        <Image
+          src={acceleratorIcon}
+          alt="Accelerator vendor"
+          width={18}
+          height={18}
+          className="h-4 w-4"
+        />
         {name}
       </div>
       <section className="mt-3 flex flex-wrap gap-2">

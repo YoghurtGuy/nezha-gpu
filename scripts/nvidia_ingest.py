@@ -176,7 +176,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 def post_snapshot(args: argparse.Namespace) -> None:
   payload = build_payload(args)
   headers = {"x-lab-token": args.token, "content-type": "application/json"}
-  response = requests.post(args.endpoint, headers=headers, json=payload, timeout=30)
+  response = requests.post(args.endpoint+"/api/devices/ingest", headers=headers, json=payload, timeout=30)
   response.raise_for_status()
   print(f"[{datetime.now().isoformat()}] Posted snapshot ({len(payload['accelerators'])} GPUs)")
 

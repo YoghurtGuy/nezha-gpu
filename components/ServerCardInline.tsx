@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import ServerFlag from "@/components/ServerFlag"
@@ -25,6 +26,7 @@ export default function ServerCardInline({ serverInfo }: { serverInfo: NezhaAPIS
     gpu_memory_percent,
     gpu_memory_used,
     gpu_memory_total,
+    acceleratorIcon,
   } = formatNezhaInfo(serverInfo)
 
   const showFlag = getEnv("NEXT_PUBLIC_ShowFlag") === "true"
@@ -53,7 +55,14 @@ export default function ServerCardInline({ serverInfo }: { serverInfo: NezhaAPIS
           >
             {showFlag ? <ServerFlag country_code={country_code} /> : null}
           </div>
-          <div className="relative w-28">
+          <div className="relative flex w-28 items-center gap-1">
+            <Image
+              src={acceleratorIcon}
+              alt="Accelerator vendor"
+              width={14}
+              height={14}
+              className="h-3.5 w-3.5"
+            />
             <p
               className={cn(
                 "break-normal font-bold tracking-tight",
@@ -151,7 +160,14 @@ export default function ServerCardInline({ serverInfo }: { serverInfo: NezhaAPIS
           >
             {showFlag ? <ServerFlag country_code={country_code} /> : null}
           </div>
-          <div className="relative w-28">
+          <div className="relative flex w-28 items-center gap-1">
+            <Image
+              src={acceleratorIcon}
+              alt="Accelerator vendor"
+              width={14}
+              height={14}
+              className="h-3.5 w-3.5"
+            />
             <p
               className={cn(
                 "break-normal font-bold tracking-tight",
