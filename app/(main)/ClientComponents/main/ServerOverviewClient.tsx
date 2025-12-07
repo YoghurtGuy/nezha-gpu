@@ -114,11 +114,11 @@ export default function ServerOverviewClient() {
               {data?.result ? (
                 <>
                   <section className="flex flex-col gap-1">
-                    <div className="flex items-center justify-between text-sm font-semibold">
+                    <div className="flex items-center justify-between text-xs font-semibold md:text-sm">
                       <p className="text-nowrap">
                         {formatBytes(totalGpuMemoryUsedValue)} / {formatBytes(totalGpuMemory)}
                       </p>
-                      <span className="text-muted-foreground text-xs">{gpuMemoryPercent.toFixed(1)}%</span>
+                      {/* <span className="text-muted-foreground text-xs">{gpuMemoryPercent.toFixed(1)}%</span> */}
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-muted">
                       <div

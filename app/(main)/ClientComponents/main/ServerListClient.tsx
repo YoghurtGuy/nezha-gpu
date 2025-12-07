@@ -171,7 +171,7 @@ export default function ServerListClient() {
 
   return (
     <>
-      <section className="flex w-full items-center gap-2 overflow-hidden">
+      {/* <section className="flex w-full items-center gap-2 overflow-hidden"> */}
         {/* <button
           type="button"
           onClick={() => {
@@ -189,15 +189,15 @@ export default function ServerListClient() {
         >
           <ViewColumnsIcon className="size-[13px]" />
         </button> */}
-        {getEnv("NEXT_PUBLIC_ShowTag") === "true" && (
+        {/* {getEnv("NEXT_PUBLIC_ShowTag") === "true" && (
           <Switch
             allTag={uniqueTags}
             nowTag={tag}
             tagCountMap={tagCountMap}
             onTagChange={handleTagChange}
           />
-        )}
-      </section>
+        )} */}
+      {/* </section> */}
       <ServerList servers={filteredServers} inline={"1"} containerRef={containerRef} />
     </>
   )

@@ -68,37 +68,37 @@ const Links = memo(function Links() {
   )
 })
 
-const Overview = memo(function Overview() {
-  const t = useTranslations("Overview")
-  const time = useCurrentTime()
-  const [mounted, setMounted] = useState(false)
+// const Overview = memo(function Overview() {
+//   const t = useTranslations("Overview")
+//   const time = useCurrentTime()
+//   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+//   useEffect(() => {
+//     setMounted(true)
+//   }, [])
 
-  return (
-    <section className={"mt-10 flex flex-col md:mt-16"}>
-      <p className="font-semibold text-base">{t("p_2277-2331_Overview")}</p>
-      <div className="flex items-center gap-1">
-        <p className="font-medium text-sm opacity-50">{t("p_2390-2457_wherethetimeis")}</p>
-        {mounted ? (
-          <div className="flex items-center font-medium text-sm">
-            <AnimateCountClient count={time.hh} minDigits={2} />
-            <span className="mb-px font-medium text-sm opacity-50">:</span>
-            <AnimateCountClient count={time.mm} minDigits={2} />
-            <span className="mb-px font-medium text-sm opacity-50">:</span>
-            <span className="font-medium text-sm">
-              <AnimateCountClient count={time.ss} minDigits={2} />
-            </span>
-          </div>
-        ) : (
-          <Skeleton className="h-[21px] w-16 animate-none rounded-[5px] bg-muted-foreground/10" />
-        )}
-      </div>
-    </section>
-  )
-})
+//   return (
+//     <section className={"mt-10 flex flex-col md:mt-16"}>
+//       {/* <p className="font-semibold text-base">{t("p_2277-2331_Overview")}</p> */}
+//       <div className="flex items-center gap-1">
+//         <p className="font-medium text-sm opacity-50">{t("p_2390-2457_wherethetimeis")}</p>
+//         {mounted ? (
+//           <div className="flex items-center font-medium text-sm">
+//             <AnimateCountClient count={time.hh} minDigits={2} />
+//             <span className="mb-px font-medium text-sm opacity-50">:</span>
+//             <AnimateCountClient count={time.mm} minDigits={2} />
+//             <span className="mb-px font-medium text-sm opacity-50">:</span>
+//             <span className="font-medium text-sm">
+//               <AnimateCountClient count={time.ss} minDigits={2} />
+//             </span>
+//           </div>
+//         ) : (
+//           <Skeleton className="h-[21px] w-16 animate-none rounded-[5px] bg-muted-foreground/10" />
+//         )}
+//       </div>
+//     </section>
+//   )
+// })
 
 function Header() {
   const t = useTranslations("Header")
@@ -154,7 +154,7 @@ function Header() {
       <div className="mt-1 flex w-full justify-end sm:hidden">
         <Links />
       </div>
-      <Overview />
+      {/* <Overview /> */}
     </div>
   )
 }
