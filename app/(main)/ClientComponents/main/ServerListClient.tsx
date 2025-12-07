@@ -15,10 +15,18 @@ import getEnv from "@/lib/env-entry"
 import { cn, formatNezhaInfo } from "@/lib/utils"
 
 
-const sortServersByDisplayIndex = (servers: any[]) => {
-  return servers.sort((a, b) => {
-    const displayIndexDiff = (b.display_index || 0) - (a.display_index || 0)
-    return displayIndexDiff !== 0 ? displayIndexDiff : a.id - b.id
+const getServerSequence = (server: any) => {
+  if (typeof server.sequence === "number") return server.sequence
+  if (typeof server.display_index === "number") return server.display_index
+  return 99
+}
+
+const sortServersBySequence = (servers: any[]) => {
+  return [...servers].sort((a, b) => {
+    const seqA = getServerSequence(a)
+    const seqB = getServerSequence(b)
+    if (seqA !== seqB) return seqA - seqB
+    return a.id - b.id
   })
 }
 
@@ -155,7 +163,7 @@ export default function ServerListClient() {
   if (!data?.result) return <LoadingState t={t} />
 
   const { result } = data
-  const sortedServers = sortServersByDisplayIndex(result)
+  const sortedServers = sortServersBySequence(result)
   const filteredServersByStatus = filterServersByStatus(sortedServers, status)
   const allTag = filteredServersByStatus.map((server) => server.tag).filter(Boolean)
   const uniqueTags = [...new Set(allTag)]

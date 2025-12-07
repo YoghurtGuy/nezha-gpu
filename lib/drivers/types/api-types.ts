@@ -29,6 +29,7 @@ export interface NezhaAPI {
   ipv4: string
   ipv6: string
   valid_ip: string
+  sequence?: number
   display_index: number
   hide_for_guest: boolean
   host: NezhaAPIHost

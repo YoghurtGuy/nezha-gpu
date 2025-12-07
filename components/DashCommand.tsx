@@ -43,9 +43,15 @@ export function DashCommand() {
 
   if (!data?.result) return null
 
-  const sortedServers = data.result.sort((a, b) => {
-    const displayIndexDiff = (b.display_index || 0) - (a.display_index || 0)
-    if (displayIndexDiff !== 0) return displayIndexDiff
+  const getSequence = (server: any) => {
+    if (typeof server.sequence === "number") return server.sequence
+    if (typeof server.display_index === "number") return server.display_index
+    return 99
+  }
+
+  const sortedServers = [...data.result].sort((a, b) => {
+    const sequenceDiff = getSequence(a) - getSequence(b)
+    if (sequenceDiff !== 0) return sequenceDiff
     return a.id - b.id
   })
 

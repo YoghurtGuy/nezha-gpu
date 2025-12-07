@@ -176,7 +176,8 @@ function mapDevice(device: DeviceWithSnapshot): NezhaAPI {
     ipv4: device.ipAddress ?? "",
     ipv6: "",
     valid_ip: device.ipAddress ?? "",
-    display_index: device.displayIndex ?? 0,
+    sequence: device.sequence ?? 99,
+    display_index: device.sequence ?? device.displayIndex ?? 99,
     hide_for_guest: false,
     host: createHost(device, snapshot),
     status: createStatus(snapshot),
@@ -202,7 +203,7 @@ export async function getLabServerData(): Promise<ServerApi> {
         },
       },
     },
-    orderBy: [{ displayIndex: "desc" }, { name: "asc" }],
+    orderBy: [{ sequence: "asc" }, { displayIndex: "desc" }, { name: "asc" }],
   })
 
   const servers = devices.map(mapDevice)
