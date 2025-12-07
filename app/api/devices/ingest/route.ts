@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client"
 import { NextResponse, type NextRequest } from "next/server"
 import getEnv from "@/lib/env-entry"
 import { prisma } from "@/lib/prisma"
@@ -285,7 +286,7 @@ export async function POST(req: NextRequest) {
   const swapTotal = snapshot.swap?.totalBytes ?? undefined
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const device = await tx.device.upsert({
         where: { slug: payload.device.slug },
         update: {
